@@ -8,15 +8,18 @@ public class Powerup : MonoBehaviour
     private float _speed = 2f;
     [SerializeField]
     private GameObject _powerupPrefab;
-    private Player _player;
+    //private Player _player;
+    [SerializeField]
+    private int powerupID;
+    // Define shields here so everything
+    // will be able to access it.
+    //private Shields _shields;
 
     // Start is called before the first frame update
     void Start()
     {
         // Start the powerup at the top of the screen at any x position.
         transform.position = new Vector3(Random.Range(-8f, 8f), 8f, 0);
-
-        _player = GameObject.Find("Player").GetComponent<Player>();
     }
 
     // Update is called once per frame
@@ -42,15 +45,31 @@ public class Powerup : MonoBehaviour
         if (other.tag == "Player")
         {
             // enable tripleshot powerup boolean
+            //Create an id for powerups
+            /// 0 = tripleshot
+            /// 1 = speedboost
+            /// 2 = shields
             Player player = other.transform.GetComponent<Player>();
             if (player != null)
             {
-                player.enableTripleShot();
+                switch (powerupID)
+                {
+                    case 0:
+                        player.enableTripleShot();
+                        player.startTimeUntilDisableTriShot();
+                        break;
+                    case 1:
+                        player.enableSpeedBoost();
+                        player.startTimeUntilDisableSpeed();
+                        break;
+                    case 2:
+                        player.enableShields();
+                        break;
+                }
             }
-
-            _player.disableTripleshotPowerup();
 
             Destroy(this.gameObject);
         }
     }
+
 }

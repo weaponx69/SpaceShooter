@@ -7,9 +7,13 @@ public class Player : MonoBehaviour
     [SerializeField] //<--Need to serialize so it will appear in inspector
     private float _speed = 3.5f;
     [SerializeField]
+    private float _speedMultiplier = 3.0f;
+    [SerializeField]
     private GameObject _laserPrefab;
     [SerializeField]
     private GameObject _tripleShotPrefab;
+    [SerializeField]
+    private GameObject _shieldsPrefab;
     [SerializeField]
     private float _fireRate = 0.15f;
     [SerializeField]
@@ -26,14 +30,32 @@ public class Player : MonoBehaviour
     private float _hullIntegrity = 5;
     private bool _playerDead = false;
     private Spawn_Manager _spawnManager;
+    private Shields _shields;
+
     [SerializeField]
     private bool isTripleShotEnabled = false;
+    [SerializeField]
+    private bool _areShieldsEnabled = false;
+    [SerializeField]
+    private bool isSpeedBoostEnabled = false;
+
+    [SerializeField]
+    private int _playerScore;
+    
+    UI_Manager _uiManager;
 
 
     // Start is called before the first frame update
     void Start()
     {
         StartCoroutine("onInitStart");
+        _shieldsPrefab.SetActive(false);
+        _uiManager = GameObject.Find("Canvas").GetComponent<UI_Manager>();
+
+        if (_uiManager == null)
+        {
+            Debug.Log("The UI manager is Null.");
+        }
     }
 
     IEnumerable onInitStart()
@@ -61,7 +83,6 @@ public class Player : MonoBehaviour
         // Make a laser bolt when the player presses the spacebar.
         // only allow the laser to be shot at its specific 
         // fire rate.
-
         if (isTripleShotEnabled == true)
         {
             _nextFire = Time.time + _fireRate;
@@ -72,6 +93,18 @@ public class Player : MonoBehaviour
             // Add this frame's time to _nextFire
             _nextFire = Time.time + _fireRate;
             Instantiate(_laserPrefab, transform.position + new Vector3(0, 0.8f, 0), Quaternion.identity);
+        }
+    }
+
+    public void setScore(int points)
+    {
+        // enemy is hit so increase the score.
+        _playerScore += points;
+
+        // Tell the UI_Manager to update the visual score.
+        if (_uiManager != null)
+        {
+            _uiManager.displayPlayerScore(_playerScore);
         }
     }
 
@@ -86,35 +119,70 @@ public class Player : MonoBehaviour
         isTripleShotEnabled = true;
     }
 
-    public void disableTripleshotPowerup()
+    public void enableShields()
+    {
+        _areShieldsEnabled = true;
+        _shieldsPrefab.SetActive(true);
+        //Debug.Log("Shields On!");
+    }
+
+    // Call this from tripleshot component when it collides.
+    public void enableSpeedBoost()
+    {
+        isSpeedBoostEnabled = true;
+    }
+
+    public void startTimeUntilDisableTriShot()
     {
         StartCoroutine(powerupLifetime());
     }
 
-    public void setPlayerDamage(float newDamage)
+    public void startTimeUntilDisableSpeed()
     {
-        _playerDammage += newDamage;
-
-        // If this player takes too  much dammage
-        // then destroy this player.
-        if (_playerDammage >= _hullIntegrity)
-        {
-            // tell the EnemySpawner to stop since player is dead now.
-            if (_spawnManager != null)
-            {
-                _spawnManager.setPlayerDead();
-            }
-            Destroy(this.gameObject);
-
-            // have something end this game
-            // and display game over.
-            // loop back to title screen.
-        }
+        StartCoroutine(powerupLifetime());
     }
 
-    public void setPlayerDead()
+    // if destroy shields are called then it must be
+    // in memory.
+    public void destroyShields()
     {
-        _playerDead = true;
+        _areShieldsEnabled = false;
+        _shieldsPrefab.SetActive(false);
+        return;
+    }
+
+    public void setPlayerDamage(float newDamage)
+    {
+        // if the shields are not on then just dammage 
+        // the player like normal if player is hit.
+        if (_areShieldsEnabled == false)
+        {
+            _playerDammage += newDamage;
+
+            // If this player takes too  much dammage
+            // then destroy this player.
+            if (_playerDammage >= _hullIntegrity)
+            {
+                // send a message to the spawn manager script
+                // to tell the Spawner to stop since player is dead now.
+                if (_spawnManager != null)
+                {
+                    _spawnManager.setPlayerDead();
+                }
+                Destroy(this.gameObject);
+
+                // have something end this game
+                // and display game over.
+                // loop back to title screen.
+            }
+        }
+        else if (_areShieldsEnabled == true)
+        {
+            Debug.Log("Sheilds down!!");
+            // tell the shields prefab to destroy itself
+            destroyShields();
+            return;
+        }
     }
 
     public bool isPlayerDead()
@@ -133,6 +201,8 @@ public class Player : MonoBehaviour
     {
         yield return new WaitForSeconds(10);
         isTripleShotEnabled = false;
+        isSpeedBoostEnabled = false;
+        //_areShieldsEnabled = false;
     }
 
     void CalculateMovemement()
@@ -140,7 +210,15 @@ public class Player : MonoBehaviour
         float horizontalInput = Input.GetAxis("Horizontal");
         float verticalInput = Input.GetAxis("Vertical");
 
-        transform.Translate(new Vector3(horizontalInput, verticalInput, 0) * _speed * Time.deltaTime);
+        // make speed greater if speed boost in enabled.
+        if (isSpeedBoostEnabled == true)
+        {
+            transform.Translate(new Vector3(horizontalInput, verticalInput, 0) * _speed * _speedMultiplier * Time.deltaTime);
+        }
+        else //just go back to normal speed.
+        {
+            transform.Translate(new Vector3(horizontalInput, verticalInput, 0) * _speed * Time.deltaTime);
+        }
 
         //stop movement when going too far up or down.
         // if player position on Y is >0 then y position == 0;

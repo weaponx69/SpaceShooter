@@ -8,17 +8,20 @@ public class Enemy : MonoBehaviour
     private float _enemySpeed = 2f;
     private float _bottomOfScreen = -6f;
 
+    private Player _player;
+
+    void Start()
+    {
+        // instantiate player here so it is not called a lot.
+        _player = GameObject.Find("Player").GetComponent<Player>();
+    }
+
     // Update is called once per frame
     void Update()
     {
         // instead of waiting for the spacebar, the
         // enemies will spawn by their own military fashion
         MoveEnemy();
-    }
-
-    void gotHitByLaser()
-    {
-        Destroy(this.gameObject);
     }
 
     void MoveEnemy()
@@ -57,7 +60,15 @@ public class Enemy : MonoBehaviour
         // the laser.
         if (other.tag == "Laser")
         {
+            // destroy the laser
             Destroy(other.gameObject);
+
+            // add 10 to the score before destroying enemy object
+            if (_player != null)
+            {
+                _player.setScore(10);
+            }
+            
             Destroy(this.gameObject);
         }
     }
