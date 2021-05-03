@@ -7,7 +7,11 @@ public class Spawn_Manager : MonoBehaviour
     [SerializeField]
     private GameObject _enemyPrefab;//<--- assign to enemy prefab in GUI
     [SerializeField]
-    private GameObject _powerupPrefab;
+    private GameObject _triShotPowerupPrefab;
+    [SerializeField]
+    private GameObject _speedPowerupPrefab;//instance of speed powerup prefab to spawn.
+    [SerializeField]
+    private GameObject _shieldPowerupPrefab;//instance of speed powerup prefab to spawn.
     [SerializeField]
     private int timeBtwEnemySpawns = 5;
     [SerializeField]
@@ -22,7 +26,9 @@ public class Spawn_Manager : MonoBehaviour
     void Start()
     {
         StartCoroutine("SpawnEnemy");
-        StartCoroutine("PowerupSpawn");
+        StartCoroutine("SpawnTriShot");
+        StartCoroutine("SpawnSpeed");
+        StartCoroutine("SpawnShields");
     }
 
     // spawn enemies objects every 5 seconds.
@@ -40,12 +46,32 @@ public class Spawn_Manager : MonoBehaviour
         }
     }
 
-    IEnumerator PowerupSpawn()
+    IEnumerator SpawnTriShot()
     {
         while (_playerDead == false)
         {
             Vector3 spawnPosition = new Vector3(Random.Range(-8f, 8f), 8f, 0);
-            GameObject newPowerup = Instantiate(_powerupPrefab, spawnPosition, Quaternion.identity);
+            GameObject newTriShotPowerup = Instantiate(_triShotPowerupPrefab, spawnPosition, Quaternion.identity);
+            yield return new WaitForSeconds(timeBtwPowerupSpawns);
+        }
+    }
+
+    IEnumerator SpawnSpeed()
+    {
+        while (_playerDead == false)
+        {
+            Vector3 spawnPosition = new Vector3(Random.Range(-8f, 8f), 8f, 0);
+            GameObject newSpeedPowerup = Instantiate(_speedPowerupPrefab, spawnPosition, Quaternion.identity);
+            yield return new WaitForSeconds(timeBtwPowerupSpawns);
+        }
+    }
+
+    IEnumerator SpawnShields()
+    {
+        while (_playerDead == false)
+        {
+            Vector3 spawnPosition = new Vector3(Random.Range(-8f, 8f), 8f, 0);
+            GameObject newShieldPowerup = Instantiate(_shieldPowerupPrefab, spawnPosition, Quaternion.identity);
             yield return new WaitForSeconds(timeBtwPowerupSpawns);
         }
     }
@@ -54,6 +80,9 @@ public class Spawn_Manager : MonoBehaviour
     // this script the player is dead.
     public void setPlayerDead()
     {
-        _playerDead = true;
+        //_playerDead = true;
+        // If the player is dead. The spawn
+        // manager can be deleted now too.
+        Destroy(this.gameObject);
     }
 }
