@@ -80,9 +80,10 @@ public class Spawn_Manager : MonoBehaviour
     // this script the player is dead.
     public void setPlayerDead()
     {
-        //_playerDead = true;
+        Debug.Log("_playerDead called.");
+        _playerDead = true;
         // If the player is dead. The spawn
         // manager can be deleted now too.
-        Destroy(this.gameObject);
+        // Destroy(this.gameObject);
     }
 }

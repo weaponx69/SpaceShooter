@@ -5,14 +5,33 @@ using UnityEngine.UI;
 
 public class UI_Manager : MonoBehaviour
 {
-    void Start()
-    {
-        //displayPlayerLives(0);
-    }
-
     // get a handle to the text component
     [SerializeField]
     private Text _scoreText; //drag the score text box to this
+
+    // get a reference to the game over text
+    // its dragged in by editor.
+    [SerializeField]
+    private Text _gameOverTextfab;
+
+    UI_Manager _uiManager;
+
+    void Awake()
+    {
+
+    }
+
+    void Start()
+    {
+        // get a reference to the UI manager script
+        _uiManager = GameObject.Find("Canvas").GetComponent<UI_Manager>();
+        if (_uiManager == null)
+        {
+            Debug.Log("The UI manager is Null.");
+        }
+
+        _gameOverTextfab.gameObject.SetActive(false);
+    }
 
     // Drag in the image that will stand for player
     // lives here to this spot.  This is the image 
@@ -54,5 +73,10 @@ public class UI_Manager : MonoBehaviour
         // Update the player score text box with
         // the updated scroe.
         _scoreText.text = "Score: " + playerScore.ToString();
+    }
+
+    public void displayGameOver()
+    {
+        _gameOverTextfab.gameObject.SetActive(true);
     }
 }

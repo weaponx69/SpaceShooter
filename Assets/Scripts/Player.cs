@@ -52,22 +52,30 @@ public class Player : MonoBehaviour
     {
         StartCoroutine("onInitStart");
         _shieldsPrefab.SetActive(false);
-        _uiManager = GameObject.Find("Canvas").GetComponent<UI_Manager>();
 
+        // get a reference to the UI manager script
+        _uiManager = GameObject.Find("Canvas").GetComponent<UI_Manager>();
         if (_uiManager == null)
         {
             Debug.Log("The UI manager is Null.");
         }
+
+        // Send a message to the spawn manager script
+        // to tell the Spawner to stop since player is dead now.
+        // get an instance of the Spawn_Manager.
+        _spawnManager = GameObject.Find("Spawn_Manager").GetComponent<Spawn_Manager>();
+        if (_spawnManager == null)
+        {
+            Debug.Log("Spawn Manager is NULL.");
+        }
     }
+
 
     IEnumerable onInitStart()
     {
         yield return null;
         // start the player at position 0,0,0
         transform.position = new Vector3(0, -3.5f, 0);
-
-        // get an instance of the Spawn_Manager.
-        _spawnManager = GameObject.Find("Spawn_Manager").GetComponent<Spawn_Manager>();
     }
 
     // Update is called once per frame
@@ -164,29 +172,26 @@ public class Player : MonoBehaviour
             // get a reference to the UI_Manager and
             // call display lives
              _damage =  _hullIntegrity - _playerDammage;
-            Debug.Log("Got hit by enemy" + _damage);
             _uiManager.displayPlayerLives(_damage);
             
             // If this player takes too  much dammage
             // then destroy this player.
             if (_playerDammage >= _hullIntegrity)
             {
-                // send a message to the spawn manager script
-                // to tell the Spawner to stop since player is dead now.
-                if (_spawnManager != null)
-                {
-                    _spawnManager.setPlayerDead();
-                }
-                Destroy(this.gameObject);
+                _uiManager.displayGameOver();
 
                 // have something end this game
                 // and display game over.
-                // loop back to title screen.
+                // loop back to the title screen.
+                _spawnManager.setPlayerDead();
+
+                // This has to be last because
+                // once this is called.  Its null.
+                Destroy(this.gameObject);
             }
         }
         else if (_areShieldsEnabled == true)
         {
-            Debug.Log("Sheilds down!!");
             // tell the shields prefab to destroy itself
             destroyShields();
             return;
