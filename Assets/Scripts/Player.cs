@@ -19,15 +19,17 @@ public class Player : MonoBehaviour
     [SerializeField]
     private float _nextFire = 0f;
 
+    int _damage = 0;
+
     // The amount of dammage the player's ship
     // has taken so far.
     [SerializeField]
-    private float _playerDammage = 0;
+    private int _playerDammage = 0;
 
     // The amount of damage the player's
     // ship can take.
     [SerializeField]
-    private float _hullIntegrity = 5;
+    private int _hullIntegrity = 3;
     private bool _playerDead = false;
     private Spawn_Manager _spawnManager;
     private Shields _shields;
@@ -151,7 +153,7 @@ public class Player : MonoBehaviour
         return;
     }
 
-    public void setPlayerDamage(float newDamage)
+    public void setPlayerDamage(int newDamage)
     {
         // if the shields are not on then just dammage 
         // the player like normal if player is hit.
@@ -159,6 +161,12 @@ public class Player : MonoBehaviour
         {
             _playerDammage += newDamage;
 
+            // get a reference to the UI_Manager and
+            // call display lives
+             _damage =  _hullIntegrity - _playerDammage;
+            Debug.Log("Got hit by enemy" + _damage);
+            _uiManager.displayPlayerLives(_damage);
+            
             // If this player takes too  much dammage
             // then destroy this player.
             if (_playerDammage >= _hullIntegrity)
