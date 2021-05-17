@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class UI_Manager : MonoBehaviour
 {
@@ -14,23 +15,31 @@ public class UI_Manager : MonoBehaviour
     [SerializeField]
     private Text _gameOverTextfab;
 
-    UI_Manager _uiManager;
+    [SerializeField]
+    private Text _retryGameText;//<--drag into here from editor to reference it
 
-    void Awake()
-    {
+    Player _player;
+    Game_Manager _gameManager;
 
-    }
 
     void Start()
     {
-        // get a reference to the UI manager script
-        _uiManager = GameObject.Find("Canvas").GetComponent<UI_Manager>();
-        if (_uiManager == null)
+        // get a reference to the player script
+        _player = GameObject.Find("Player").GetComponent<Player>();
+        if (_player == null)
         {
-            Debug.Log("The UI manager is Null.");
+            Debug.Log("player is Null.");
         }
 
         _gameOverTextfab.gameObject.SetActive(false);
+
+        _gameManager = GameObject.Find("Game_Manager").GetComponent<Game_Manager>();
+        if (_gameManager == null)
+        {
+            Debug.Log("Game Manager is Null.");
+        }
+
+        _gameManager.GameOver();
     }
 
     // Drag in the image that will stand for player
@@ -75,8 +84,29 @@ public class UI_Manager : MonoBehaviour
         _scoreText.text = "Score: " + playerScore.ToString();
     }
 
-    public void displayGameOver()
+    // called instead of displayGameOver so
+    // gameover can flash.
+    public void flashGameOver()
     {
-        _gameOverTextfab.gameObject.SetActive(true);
+        StartCoroutine(displayGameOver());
+
+        // Since the game is over, give player
+        // option to restart the game.
+        _retryGameText.gameObject.SetActive(true);
+
+        _gameManager.GameOver();
+    }
+
+    IEnumerator displayGameOver()
+    {
+        // keep turning on/off while player is dead.
+        // make this while gameover == true.
+        while (true)
+        {
+            _gameOverTextfab.gameObject.SetActive(true);
+            yield return new WaitForSeconds(0.25f);
+            _gameOverTextfab.gameObject.SetActive(false);
+            yield return new WaitForSeconds(0.25f);
+        }
     }
 }

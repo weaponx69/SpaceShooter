@@ -18,7 +18,6 @@ public class Player : MonoBehaviour
     private float _fireRate = 0.15f;
     [SerializeField]
     private float _nextFire = 0f;
-
     int _damage = 0;
 
     // The amount of dammage the player's ship
@@ -74,8 +73,8 @@ public class Player : MonoBehaviour
     IEnumerable onInitStart()
     {
         yield return null;
-        // start the player at position 0,0,0
-        transform.position = new Vector3(0, -3.5f, 0);
+        // start the player at position 0,-8,0
+        transform.position = new Vector3(0, -8f, 0);
     }
 
     // Update is called once per frame
@@ -178,12 +177,12 @@ public class Player : MonoBehaviour
             // then destroy this player.
             if (_playerDammage >= _hullIntegrity)
             {
-                _uiManager.displayGameOver();
-
                 // have something end this game
                 // and display game over.
                 // loop back to the title screen.
                 _spawnManager.setPlayerDead();
+
+                _uiManager.flashGameOver();
 
                 // This has to be last because
                 // once this is called.  Its null.
@@ -235,11 +234,11 @@ public class Player : MonoBehaviour
 
         //stop movement when going too far up or down.
         // if player position on Y is >0 then y position == 0;
-        float upperBoundry = 0f;
-        float lowerBoundry = -3.8f;
+        float upperBoundry = -3f;  // 48f <-- open world boundries
+        float lowerBoundry = -8f;    //-22.3f
 
-        float leftBoundry = -9.14f;
-        float rightBoundry = 9.14f;
+        float leftBoundry = -8f; //-50 <--- open world boundries 
+        float rightBoundry = 7f; // 50
 
         // Clamp movement on the Y-axis between upper and lower boundry instead of using if-thens above.
         // Mathf.Clamp(transform.position.y, upperBoundry, lowerBoundry)
@@ -249,12 +248,14 @@ public class Player : MonoBehaviour
         if (transform.position.x <= leftBoundry)
         {
             // Warp player to the other side of the screen if they move too far left.
-            transform.position = new Vector3(rightBoundry, transform.position.y, 0);
+            //transform.position = new Vector3(rightBoundry, transform.position.y, 0);
+            transform.position = new Vector3(leftBoundry, transform.position.y, 0);
         }
         else if (transform.position.x >= rightBoundry)
         {
             // Warp player to the other side of the screen if they move too far right.
-            transform.position = new Vector3(leftBoundry, transform.position.y, 0);
+            // transform.position = new Vector3(leftBoundry, transform.position.y, 0);
+            transform.position = new Vector3(rightBoundry, transform.position.y, 0);
         }
     }
 }
