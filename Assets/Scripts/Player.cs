@@ -18,7 +18,6 @@ public class Player : MonoBehaviour
     private float _fireRate = 0.15f;
     [SerializeField]
     private float _nextFire = 0f;
-
     int _damage = 0;
 
     // The amount of dammage the player's ship
@@ -52,22 +51,30 @@ public class Player : MonoBehaviour
     {
         StartCoroutine("onInitStart");
         _shieldsPrefab.SetActive(false);
-        _uiManager = GameObject.Find("Canvas").GetComponent<UI_Manager>();
 
+        // get a reference to the UI manager script
+        _uiManager = GameObject.Find("Canvas").GetComponent<UI_Manager>();
         if (_uiManager == null)
         {
             Debug.Log("The UI manager is Null.");
         }
+
+        // Send a message to the spawn manager script
+        // to tell the Spawner to stop since player is dead now.
+        // get an instance of the Spawn_Manager.
+        _spawnManager = GameObject.Find("Spawn_Manager").GetComponent<Spawn_Manager>();
+        if (_spawnManager == null)
+        {
+            Debug.Log("Spawn Manager is NULL.");
+        }
     }
+
 
     IEnumerable onInitStart()
     {
         yield return null;
-        // start the player at position 0,0,0
-        transform.position = new Vector3(0, -3.5f, 0);
-
-        // get an instance of the Spawn_Manager.
-        _spawnManager = GameObject.Find("Spawn_Manager").GetComponent<Spawn_Manager>();
+        // start the player at position 0,-8,0
+        transform.position = new Vector3(0, -8f, 0);
     }
 
     // Update is called once per frame
@@ -164,29 +171,26 @@ public class Player : MonoBehaviour
             // get a reference to the UI_Manager and
             // call display lives
              _damage =  _hullIntegrity - _playerDammage;
-            Debug.Log("Got hit by enemy" + _damage);
             _uiManager.displayPlayerLives(_damage);
             
             // If this player takes too  much dammage
             // then destroy this player.
             if (_playerDammage >= _hullIntegrity)
             {
-                // send a message to the spawn manager script
-                // to tell the Spawner to stop since player is dead now.
-                if (_spawnManager != null)
-                {
-                    _spawnManager.setPlayerDead();
-                }
-                Destroy(this.gameObject);
-
                 // have something end this game
                 // and display game over.
-                // loop back to title screen.
+                // loop back to the title screen.
+                _spawnManager.setPlayerDead();
+
+                _uiManager.flashGameOver();
+
+                // This has to be last because
+                // once this is called.  Its null.
+                Destroy(this.gameObject);
             }
         }
         else if (_areShieldsEnabled == true)
         {
-            Debug.Log("Sheilds down!!");
             // tell the shields prefab to destroy itself
             destroyShields();
             return;
@@ -230,11 +234,11 @@ public class Player : MonoBehaviour
 
         //stop movement when going too far up or down.
         // if player position on Y is >0 then y position == 0;
-        float upperBoundry = 0f;
-        float lowerBoundry = -3.8f;
+        float upperBoundry = -3f;  // 48f <-- open world boundries
+        float lowerBoundry = -8f;    //-22.3f
 
-        float leftBoundry = -9.14f;
-        float rightBoundry = 9.14f;
+        float leftBoundry = -8f; //-50 <--- open world boundries 
+        float rightBoundry = 7f; // 50
 
         // Clamp movement on the Y-axis between upper and lower boundry instead of using if-thens above.
         // Mathf.Clamp(transform.position.y, upperBoundry, lowerBoundry)
@@ -244,12 +248,14 @@ public class Player : MonoBehaviour
         if (transform.position.x <= leftBoundry)
         {
             // Warp player to the other side of the screen if they move too far left.
-            transform.position = new Vector3(rightBoundry, transform.position.y, 0);
+            //transform.position = new Vector3(rightBoundry, transform.position.y, 0);
+            transform.position = new Vector3(leftBoundry, transform.position.y, 0);
         }
         else if (transform.position.x >= rightBoundry)
         {
             // Warp player to the other side of the screen if they move too far right.
-            transform.position = new Vector3(leftBoundry, transform.position.y, 0);
+            // transform.position = new Vector3(leftBoundry, transform.position.y, 0);
+            transform.position = new Vector3(rightBoundry, transform.position.y, 0);
         }
     }
 }
