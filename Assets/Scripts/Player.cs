@@ -25,6 +25,13 @@ public class Player : MonoBehaviour
     [SerializeField]
     private int _playerDammage = 0;
 
+    // Get the engine dammage ainimations to 
+    // play them when player gets dammaged.
+    [SerializeField]
+    private GameObject _leftEngineDammage;
+    [SerializeField]
+    private GameObject _rightEngineDammage;
+
     // The amount of damage the player's
     // ship can take.
     [SerializeField]
@@ -171,7 +178,10 @@ public class Player : MonoBehaviour
             // get a reference to the UI_Manager and
             // call display lives
              _damage =  _hullIntegrity - _playerDammage;
+            
             _uiManager.displayPlayerLives(_damage);
+
+            playEngineDammage(_damage);            
             
             // If this player takes too  much dammage
             // then destroy this player.
@@ -207,6 +217,19 @@ public class Player : MonoBehaviour
         return _hullIntegrity;
     }
 
+    public void playEngineDammage(int dammage)
+    {
+        switch(dammage)
+        {
+            case 1:
+                _leftEngineDammage.SetActive(true);
+                break;
+            case 2:
+                _rightEngineDammage.SetActive(true);
+                break;
+        }
+    }
+
     // spawn manager calls this to keep
     // the effects of tripleshot going.
     IEnumerator powerupLifetime()
@@ -214,7 +237,6 @@ public class Player : MonoBehaviour
         yield return new WaitForSeconds(10);
         isTripleShotEnabled = false;
         isSpeedBoostEnabled = false;
-        //_areShieldsEnabled = false;
     }
 
     void CalculateMovemement()
