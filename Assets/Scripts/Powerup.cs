@@ -8,18 +8,18 @@ public class Powerup : MonoBehaviour
     private float _speed = 2f;
     [SerializeField]
     private GameObject _powerupPrefab;
-    //private Player _player;
     [SerializeField]
     private int powerupID;
-    // Define shields here so everything
-    // will be able to access it.
-    //private Shields _shields;
+
+    private AudioSource _powerUpSound;
 
     // Start is called before the first frame update
     void Start()
     {
         // Start the powerup at the top of the screen at any x position.
         transform.position = new Vector3(Random.Range(-8f, 8f), 8f, 0);
+
+        _powerUpSound = GameObject.Find("PowerUP_Sound").GetComponent<AudioSource>();
     }
 
     // Update is called once per frame
@@ -56,14 +56,17 @@ public class Powerup : MonoBehaviour
                 {
                     case 0:
                         player.enableTripleShot();
+                        _powerUpSound.Play();
                         player.startTimeUntilDisableTriShot();
                         break;
                     case 1:
                         player.enableSpeedBoost();
+                        _powerUpSound.Play();
                         player.startTimeUntilDisableSpeed();
                         break;
                     case 2:
                         player.enableShields();
+                        _powerUpSound.Play();
                         break;
                 }
             }

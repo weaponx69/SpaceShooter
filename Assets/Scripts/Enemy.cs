@@ -11,6 +11,9 @@ public class Enemy : MonoBehaviour
     private Player _player;
     private Animator _setExplosion;
 
+    //[SerializeField]
+    private AudioSource _explosionSound;
+
     void Start()
     {
         // instantiate player here so it is not called a lot.
@@ -18,6 +21,8 @@ public class Enemy : MonoBehaviour
 
         // Get an instance of animator.
         _setExplosion = GetComponent<Animator>();
+
+        _explosionSound = GameObject.Find("Explosion_Sound").GetComponent<AudioSource>();
     }
 
     // Update is called once per frame
@@ -57,9 +62,11 @@ public class Enemy : MonoBehaviour
                 player.setPlayerDamage(1);
             }
 
-            // Play the destroy animation
+            // Play the destroy animation and explosion sound.
             _setExplosion.SetTrigger("OnEnemyDestroyed");
             _enemySpeed = 0;
+            _explosionSound.Play();
+
             // Now destroy this enemy object.
             Destroy(this.gameObject, 2.8f);
         }
@@ -70,11 +77,14 @@ public class Enemy : MonoBehaviour
             // destroy the laser
             Destroy(other.gameObject, 2.8f);
 
+            _explosionSound.Play();
+
             // add 10 to the score before destroying enemy object
             if (_player != null)
             {
                 _player.setScore(10);
             }
+            Destroy(GetComponent<Collider2D>());
 
             // Play the destroy animation
             _setExplosion.SetTrigger("OnEnemyDestroyed");
