@@ -19,6 +19,8 @@ public class Asteroid : MonoBehaviour
 
     private GameObject _asteroidExplosion;
 
+    private AudioSource _explosionSound;
+
     // create a spawn manager object
     Spawn_Manager _spawnManager;
 
@@ -27,6 +29,8 @@ public class Asteroid : MonoBehaviour
     {
         // get an instance of the spawn manager from the game.
         _spawnManager = GameObject.Find("Spawn_Manager").GetComponent<Spawn_Manager>();
+
+        _explosionSound = GameObject.Find("Explosion_Sound").GetComponent<AudioSource>();
     }
 
     // Update is called once per frame
@@ -46,12 +50,18 @@ public class Asteroid : MonoBehaviour
             // asteroid destroy the laser.
             Destroy(other.gameObject);
 
+            _explosionSound.Play();
+
             // call the method to start spawning.
             // after asteroid is destroyed.
             _spawnManager.StartSpawning();
 
             // Destroy asteroid
             Destroy(this.gameObject);
+        }
+        if (other.tag == "Player")
+        {
+            _explosionSound.Play();
         }
     }
 }

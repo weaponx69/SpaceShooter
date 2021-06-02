@@ -20,6 +20,13 @@ public class Player : MonoBehaviour
     private float _nextFire = 0f;
     int _damage = 0;
 
+    [SerializeField]
+    private AudioSource _laserShot;
+    [SerializeField]
+    private AudioSource _explosionSound;
+    [SerializeField]
+    private AudioSource _powerUP_Sound;
+
     // The amount of dammage the player's ship
     // has taken so far.
     [SerializeField]
@@ -66,13 +73,21 @@ public class Player : MonoBehaviour
             Debug.Log("The UI manager is Null.");
         }
 
-        // Send a message to the spawn manager script
-        // to tell the Spawner to stop since player is dead now.
         // get an instance of the Spawn_Manager.
         _spawnManager = GameObject.Find("Spawn_Manager").GetComponent<Spawn_Manager>();
         if (_spawnManager == null)
         {
             Debug.Log("Spawn Manager is NULL.");
+        }
+
+        // Get the sound objects
+        _laserShot = GameObject.Find("LaserShot").GetComponent<AudioSource>();
+        {
+            if (_laserShot == null) Debug.Log("LaserShot is null.");
+        }
+        _explosionSound = GameObject.Find("Explosion_Sound").GetComponent<AudioSource>();
+        {
+            if (_explosionSound == null) Debug.Log("Explosion is null.");
         }
     }
 
@@ -103,12 +118,14 @@ public class Player : MonoBehaviour
         {
             _nextFire = Time.time + _fireRate;
             Instantiate(_tripleShotPrefab, transform.position, Quaternion.identity);
+            _laserShot.Play();
         }
         else
         {
             // Add this frame's time to _nextFire
             _nextFire = Time.time + _fireRate;
             Instantiate(_laserPrefab, transform.position + new Vector3(0, 0.8f, 0), Quaternion.identity);
+            _laserShot.Play();
         }
     }
 
@@ -139,7 +156,6 @@ public class Player : MonoBehaviour
     {
         _areShieldsEnabled = true;
         _shieldsPrefab.SetActive(true);
-        //Debug.Log("Shields On!");
     }
 
     // Call this from tripleshot component when it collides.
@@ -191,6 +207,9 @@ public class Player : MonoBehaviour
                 // and display game over.
                 // loop back to the title screen.
                 _spawnManager.setPlayerDead();
+                
+                // make player explode sound
+                _explosionSound.Play();
 
                 _uiManager.flashGameOver();
 
