@@ -1,0 +1,13 @@
+fileFormatVersion: 2
+guid: cd4846211601f9b4f8ea5c912c307014
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - Left_Laser: {fileID: 6691324153744553353, guid: d52b60225ca604547a7194ded11c4270, type: 3}
+  - Right_Laser: {fileID: 6691324153744553353, guid: d52b60225ca604547a7194ded11c4270, type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
